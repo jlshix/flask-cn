@@ -6,11 +6,14 @@
     A microframework based on Werkzeug.  It's extensively documented
     and follows best practice patterns.
 
+    flask 是一个基于 Werkzeug 的 "微框架", 它被广泛使用, 并遵循最佳实践模式.
+
     :copyright: 2010 Pallets
     :license: BSD-3-Clause
 """
 # utilities we import from Werkzeug and Jinja2 that are unused
 # in the module but are exported as public interface.
+# 从 Werkzeug 和 Jinja2 导入的工具并没有直接使用, 而是作为对外的公共接口.
 from jinja2 import escape
 from jinja2 import Markup
 from werkzeug.exceptions import abort

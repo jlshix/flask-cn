@@ -11,7 +11,7 @@ import io
 import uuid
 from datetime import date
 from datetime import datetime
-
+# 注: 导入了 itsdangerous 的 json 作为基础.
 from itsdangerous import json as _json
 from jinja2 import Markup
 from werkzeug.http import http_date
@@ -22,12 +22,16 @@ from ..globals import current_app
 from ..globals import request
 
 try:
+    # 注: 支持 python 3.7+ 的 数据类.
+    # ref: https://docs.python.org/zh-cn/3/library/dataclasses.html
     import dataclasses
 except ImportError:
     dataclasses = None
 
 # Figure out if simplejson escapes slashes.  This behavior was changed
 # from one version to another without reason.
+# 确认 simplejson 是不是跳过了斜线.
+# 从一个版本到另一个版本无故发生了这个行为变更.
 _slash_escape = "\\/" not in _json.dumps("/")
 
 
@@ -63,11 +67,18 @@ class JSONEncoder(_json.JSONEncoder):
     encoder by also supporting ``datetime``, ``UUID``, ``dataclasses``,
     and ``Markup`` objects.
 
+    flask 默认的 JSON 编码器. 它拓展了 python 自带 json 模块的编码器, 并支持
+    `datetime`, `UUID`, `dataclasses` 和 `Markup` 对象.
+
     ``datetime`` objects are serialized as RFC 822 datetime strings.
     This is the same as the HTTP date format.
 
+    `datetime` 对象的序列化为 RFC 822 标准的 datetime 字符串, 和 HTTP 的时间格式一致.
+
     In order to support more data types, override the :meth:`default`
     method.
+
+    如果需要支持更多的数据类型, 可重写 `default` 方法.
     """
 
     def default(self, o):
@@ -75,8 +86,13 @@ class JSONEncoder(_json.JSONEncoder):
         serializable object for ``o``, or calls the base implementation (to
         raise a :exc:`TypeError`).
 
+        在子类中实现这个方法, 返回对象 `o` 序列化后的结果, 或者调用基类的实现
+        (抛出 TypeError).
+
         For example, to support arbitrary iterators, you could implement
         default like this::
+
+        例如, 为了支持任意的迭代器, 你可以这样实现 `default` 方法:
 
             def default(self, o):
                 try:
@@ -105,11 +121,17 @@ class JSONDecoder(_json.JSONDecoder):
     the default simplejson decoder.  Consult the :mod:`json` documentation
     for more information.  This decoder is not only used for the load
     functions of this module but also :attr:`~flask.Request`.
+
+    flask 默认的 JSON 解码器. 行为和 simplejson 的解码器一致.
+    如果想了解更多内容, 可以参考 python 自带 json 模块的文档.
+    这个解码器不止用于此模块的加载函数, 也在 flask 的 `Request` 类中使用.
     """
 
 
 def _dump_arg_defaults(kwargs, app=None):
-    """Inject default arguments for dump functions."""
+    """Inject default arguments for dump functions.
+    为 dump 函数注入默认参数
+    """
     if app is None:
         app = current_app
 
@@ -129,7 +151,9 @@ def _dump_arg_defaults(kwargs, app=None):
 
 
 def _load_arg_defaults(kwargs, app=None):
-    """Inject default arguments for load functions."""
+    """Inject default arguments for load functions.
+    为 load 函数注入默认参数
+    """
     if app is None:
         app = current_app
 
@@ -145,12 +169,19 @@ def _load_arg_defaults(kwargs, app=None):
 def detect_encoding(data):
     """Detect which UTF codec was used to encode the given bytes.
 
+    检查给定的 bytes 是用哪种 UTF 编码得到的.
+
     The latest JSON standard (:rfc:`8259`) suggests that only UTF-8 is
     accepted. Older documents allowed 8, 16, or 32. 16 and 32 can be big
     or little endian. Some editors or libraries may prepend a BOM.
 
+    最新的 JSON 标准(rfc 8259) 建议只使用 URF-8. 更旧的文档可以使用 8, 16 或 32.
+    16 和 32 可能是大端字节序或小端字节序. 一些编辑器和库可能前置一个字节顺序标记.
+
     :param data: Bytes in unknown UTF encoding.
+    参数 data: 未知 UTF 编码的 bytes
     :return: UTF encoding name
+    返回: UTF 编码名
     """
     head = data[:4]
 
@@ -191,15 +222,27 @@ def dumps(obj, app=None, **kwargs):
     (:attr:`~flask.Flask.json_encoder`), or fall back to the default
     :class:`JSONEncoder`.
 
+    序列化 `obj` 为一个 json 格式字符串. 如果指定了应用上下文, 使用当前应用配置的
+    编码器(Flask.json_encoder), 否则使用默认的编码器(JSONEncoder).
+
     Takes the same arguments as the built-in :func:`json.dumps`, and
     does some extra configuration based on the application. If the
     simplejson package is installed, it is preferred.
 
+    接收的参数和内置 json 的 dumps 函数一致. 基于 app 做了一些额外的配置.
+    如果安装了 simplejson, 优先使用 simplejson.
+
     :param obj: Object to serialize to JSON.
+    参数 obj: 用于序列化的对象.
+
     :param app: App instance to use to configure the JSON encoder.
         Uses ``current_app`` if not given, and falls back to the default
         encoder when not in an app context.
+    参数 app: app 实例, 用于配置 JSON 编码器. 若未指定, 使用 `current_app`,
+        如果没有应用上下文, 使用默认的编码器.
+
     :param kwargs: Extra arguments passed to :func:`json.dumps`.
+    参数 kwargs: 额外的参数, 和 json.dumps 一致.
 
     .. versionchanged:: 1.0.3
 
@@ -215,7 +258,9 @@ def dumps(obj, app=None, **kwargs):
 
 
 def dump(obj, fp, app=None, **kwargs):
-    """Like :func:`dumps` but writes into a file object."""
+    """Like :func:`dumps` but writes into a file object.
+    和 dumps 类似, 但是把结果写入文件对象.
+    """
     _dump_arg_defaults(kwargs, app=app)
     encoding = kwargs.pop("encoding", None)
     if encoding is not None:
@@ -229,15 +274,28 @@ def loads(s, app=None, **kwargs):
     decoder (:attr:`~flask.Flask.json_decoder`), or fall back to the
     default :class:`JSONDecoder`.
 
+    从一个 json 格式字符串 `s` 反序列化得到一个对象.
+    如果指定了应用上下文, 使用当前应用配置的解码器(Flask.json_decoder),
+    否则使用默认的解码器(JSONDecoder).
+
     Takes the same arguments as the built-in :func:`json.loads`, and
     does some extra configuration based on the application. If the
     simplejson package is installed, it is preferred.
 
+    接收的参数和内置 json 的 loads 函数一致. 基于 app 做了一些额外的配置.
+    如果安装了 simplejson, 优先使用 simplejson.
+
+
     :param s: JSON string to deserialize.
+    参数 s: 用于反序列化的 json 字符串.
     :param app: App instance to use to configure the JSON decoder.
         Uses ``current_app`` if not given, and falls back to the default
         encoder when not in an app context.
+    参数 app: app 实例, 用于配置 JSON 解码器. 若未指定, 使用 `current_app`,
+        如果没有应用上下文, 使用默认的编码器(注: 原文中的 encoder 应当是文档编写错误).
+
     :param kwargs: Extra arguments passed to :func:`json.dumps`.
+    参数 kwargs: 额外的参数, 和 json.loads 一致(注: 原文中的 dumps 应当是文档编写错误).
 
     .. versionchanged:: 1.0.3
 
@@ -254,7 +312,9 @@ def loads(s, app=None, **kwargs):
 
 
 def load(fp, app=None, **kwargs):
-    """Like :func:`loads` but reads from a file object."""
+    """Like :func:`loads` but reads from a file object.
+    和 loads 类似, 但是是从文件中读取输入.
+    """
     _load_arg_defaults(kwargs, app=app)
     if not PY2:
         fp = _wrap_reader_for_text(fp, kwargs.pop("encoding", None) or "utf-8")
@@ -268,7 +328,13 @@ def htmlsafe_dumps(obj, **kwargs):
     also mark the result as safe.  Due to how this function escapes certain
     characters this is safe even if used outside of ``<script>`` tags.
 
+    和 dumps 的作用类似, 可以在 `<script>` 标签中安全使用.
+    和 dumps 接收的参数一致, 返回一个 json 格式的字符串.
+    需要注意的是, 这个函数可以在模板以 `|tojson` 过滤器的方式使用, 也会同时将输出结果
+    标记为安全. 由于此函数跳过某些特定字符的实现机制, 也可以在 `<script>` 标签外使用.
+
     The following characters are escaped in strings:
+    在字符串中以下字符会被跳过
 
     -   ``<``
     -   ``>``
@@ -278,6 +344,9 @@ def htmlsafe_dumps(obj, **kwargs):
     This makes it safe to embed such strings in any place in HTML with the
     notable exception of double quoted attributes.  In that case single
     quote your attributes or HTML escape it in addition.
+    这样可以将用双括号包含的属性安全嵌入这些字符串到 HTML 的任何位置, 出现异常也可以发现.
+    那样的话, 可以使用单括号包含属性, 或者在 HTML 中避开.
+
 
     .. versionchanged:: 0.10
        This function's return value is now always safe for HTML usage, even
@@ -299,7 +368,9 @@ def htmlsafe_dumps(obj, **kwargs):
 
 
 def htmlsafe_dump(obj, fp, **kwargs):
-    """Like :func:`htmlsafe_dumps` but writes into a file object."""
+    """Like :func:`htmlsafe_dumps` but writes into a file object.
+    类似于 htmlsafe_dumps, 但是把结果写入文件对象.
+    """
     fp.write(text_type(htmlsafe_dumps(obj, **kwargs)))
 
 
@@ -311,17 +382,32 @@ def jsonify(*args, **kwargs):
     into a dict.  This means that both ``jsonify(1,2,3)`` and
     ``jsonify([1,2,3])`` serialize to ``[1,2,3]``.
 
+    这个函数基于 dumps 做了一些增强, 使用更加方便. 它将 JSON 输出转换为 `flask.Response`
+    对象, mimetype 默认为 `application/json`.
+    为了使用方便, 也可以将多个参数转换为 list 或多个关键字参数转换为 dict.
+    也就是说, `jsonify(1, 2, 3)` 和 `jsonify([1, 2, 3])` 都将序列化为 `[1,2,3]`
+
     For clarity, the JSON serialization behavior has the following differences
     from :func:`dumps`:
+    为了清楚起见, JSON 序列化行为和 dumps 有以下几个不同之处:
+
 
     1. Single argument: Passed straight through to :func:`dumps`.
+    1. 单个参数: 直接传入 `dumps`.
+
     2. Multiple arguments: Converted to an array before being passed to
        :func:`dumps`.
+    2. 多个参数: 传入 `dumps` 之前转换为列表.
+
     3. Multiple keyword arguments: Converted to a dict before being passed to
        :func:`dumps`.
+    3. 多个关键字参数: 传入 `dumps` 之前转换为字典.
+
     4. Both args and kwargs: Behavior undefined and will throw an exception.
+    4. 位置参数和关键字参数: 未定义的行为都将抛出异常.
 
     Example usage::
+    示例用法:
 
         from flask import jsonify
 
