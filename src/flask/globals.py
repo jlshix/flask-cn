@@ -6,6 +6,8 @@
     Defines all the global objects that are proxies to the current
     active context.
 
+    定义作为当前活动上下文代理的所有全局对象.
+
     :copyright: 2010 Pallets
     :license: BSD-3-Clause
 """
