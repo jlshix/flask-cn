@@ -1692,7 +1692,7 @@ class Flask(_PackageBoundObject):
         请查看 `url-route-registrations` 获取更多信息.
 
         :param rule: the URL rule as string
-        cans rule: 字符串格式的 URL 规则
+        参数 rule: 字符串格式的 URL 规则
 
         :param endpoint: the endpoint for the registered URL rule.  Flask
                          itself assumes the name of the view function as

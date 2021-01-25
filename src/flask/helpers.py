@@ -1155,7 +1155,7 @@ def find_package(import_name):
     import the module.  The prefix is the path below which a UNIX like
     folder structure exists (lib, share etc.).
 
-    查找一个包并已元组的方式返回前缀(如果未安装这个包返回 None)和包含这个包的文件夹.
+    查找一个包并以元组的方式返回前缀(如果未安装这个包返回 None)和包含这个包的文件夹.
     返回的包路径是必须添加到 PYTHONPATH 中的模块, 以便可以导入该模块. 前缀是存在
     类似 UNIX 文件夹结构的路径(例如 lib, share 等).
     """

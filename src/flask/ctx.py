@@ -336,7 +336,7 @@ class RequestContext(object):
     以便交互式的调试器可以拿到内省数据. 使用 0.4 版本时也可以强制未失败且处于
     调试模式之外的请求. 在 WSGI 环境下, 如果把 `flask._preserve_context`
     设为 `True`, 请求结束后不弹出上下文. 这种情况在 `flask.Flask.test_client`
-    方法中使用, 例如实现延迟清楚功能.
+    方法中使用, 例如实现延迟清理功能.
 
     You might find this helpful for unittests where you need the
     information from the context local around for a little longer.  Make
@@ -447,9 +447,9 @@ class RequestContext(object):
         # functionality is not active in production environments.
         #
         # 如果在调试模式下发生异常或在异常情况下激活了上下文保存, 则一个上下文留在栈中.
-        # 在调试的情况下会想要访问这些信息, 着很合理. 但如果有人再次忘了弹出那个上下文,
+        # 在调试的情况下会想要访问这些信息, 这很合理. 但如果有人再次忘了弹出那个上下文,
         # 我们就想要保证下次推入是无效的了, 否则我们就要承担内存泄露的风险. 这通常只是一个
-        # 测试套件中的问题, 因为此功能在生产环境中会被激活.
+        # 测试套件中的问题, 因为此功能在生产环境中不会被激活.
         top = _request_ctx_stack.top
         if top is not None and top.preserved:
             top.pop(top._preserved_exc)

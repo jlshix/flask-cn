@@ -73,7 +73,7 @@ class JSONEncoder(_json.JSONEncoder):
     ``datetime`` objects are serialized as RFC 822 datetime strings.
     This is the same as the HTTP date format.
 
-    `datetime` 对象的序列化为 RFC 822 标准的 datetime 字符串, 和 HTTP 的时间格式一致.
+    `datetime` 对象的序列化为 RFC 822 标准的 datetime 字符串, 和 HTTP 的日期格式一致.
 
     In order to support more data types, override the :meth:`default`
     method.
@@ -124,7 +124,7 @@ class JSONDecoder(_json.JSONDecoder):
 
     flask 默认的 JSON 解码器. 行为和 simplejson 的解码器一致.
     如果想了解更多内容, 可以参考 python 自带 json 模块的文档.
-    这个解码器不止用于此模块的加载函数, 也在 flask 的 `Request` 类中使用.
+    这个解码器不止用于此模块的 load 函数, 也在 flask 的 `Request` 类中使用.
     """
 
 
@@ -175,11 +175,12 @@ def detect_encoding(data):
     accepted. Older documents allowed 8, 16, or 32. 16 and 32 can be big
     or little endian. Some editors or libraries may prepend a BOM.
 
-    最新的 JSON 标准(rfc 8259) 建议只使用 URF-8. 更旧的文档可以使用 8, 16 或 32.
+    最新的 JSON 标准(rfc 8259) 建议只使用 UTF-8. 更旧的文档可以使用 8, 16 或 32.
     16 和 32 可能是大端字节序或小端字节序. 一些编辑器和库可能前置一个字节顺序标记.
 
     :param data: Bytes in unknown UTF encoding.
     参数 data: 未知 UTF 编码的 bytes
+
     :return: UTF encoding name
     返回: UTF 编码名
     """
@@ -288,11 +289,12 @@ def loads(s, app=None, **kwargs):
 
     :param s: JSON string to deserialize.
     参数 s: 用于反序列化的 json 字符串.
+
     :param app: App instance to use to configure the JSON decoder.
         Uses ``current_app`` if not given, and falls back to the default
         encoder when not in an app context.
     参数 app: app 实例, 用于配置 JSON 解码器. 若未指定, 使用 `current_app`,
-        如果没有应用上下文, 使用默认的编码器(注: 原文中的 encoder 应当是文档编写错误).
+        如果没有应用上下文, 使用默认的解码器(注: 原文中的 encoder 应当是文档编写错误).
 
     :param kwargs: Extra arguments passed to :func:`json.dumps`.
     参数 kwargs: 额外的参数, 和 json.loads 一致(注: 原文中的 dumps 应当是文档编写错误).
@@ -334,7 +336,7 @@ def htmlsafe_dumps(obj, **kwargs):
     标记为安全. 由于此函数跳过某些特定字符的实现机制, 也可以在 `<script>` 标签外使用.
 
     The following characters are escaped in strings:
-    在字符串中以下字符会被跳过
+    在字符串中以下字符会被跳过:
 
     -   ``<``
     -   ``>``
@@ -404,7 +406,7 @@ def jsonify(*args, **kwargs):
     3. 多个关键字参数: 传入 `dumps` 之前转换为字典.
 
     4. Both args and kwargs: Behavior undefined and will throw an exception.
-    4. 位置参数和关键字参数: 未定义的行为都将抛出异常.
+    4. 位置参数和关键字参数: 未定义的行为, 将抛出异常.
 
     Example usage::
     示例用法:
@@ -418,6 +420,7 @@ def jsonify(*args, **kwargs):
                            id=g.user.id)
 
     This will send a JSON response like this to the browser::
+    这将向浏览器发送如下 JSON 响应:
 
         {
             "username": "admin",

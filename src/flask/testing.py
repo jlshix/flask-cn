@@ -6,6 +6,8 @@
     Implements test support helpers.  This module is lazily imported
     and usually not used in production environments.
 
+    实现对测试进行支持的工具. 此模块懒加载且通常不用于生产环境.
+
     :copyright: 2010 Pallets
     :license: BSD-3-Clause
 """
@@ -26,22 +28,42 @@ class EnvironBuilder(werkzeug.test.EnvironBuilder):
     """An :class:`~werkzeug.test.EnvironBuilder`, that takes defaults from the
     application.
 
+    一个 `werkzeug.test.EnvironBuilder` 的子类. 从应用获取默认值.
+
     :param app: The Flask application to configure the environment from.
+    参数 app: Flask 应用, 用于设定环境.
+
     :param path: URL path being requested.
+    参数 path: 请求的 URL 路径.
+
     :param base_url: Base URL where the app is being served, which
         ``path`` is relative to. If not given, built from
         :data:`PREFERRED_URL_SCHEME`, ``subdomain``,
         :data:`SERVER_NAME`, and :data:`APPLICATION_ROOT`.
+    参数 base_url: 应用服务的基本 URL, `path` 是其相对路径. 如果未给出, 从
+        `PREFERRED_URL_SCHEME`, `subdomain`, `SERVER_NAME` 和 `APPLICATION_ROOT`
+        中获取.
+
     :param subdomain: Subdomain name to append to :data:`SERVER_NAME`.
+    参数 subdomain: 连接到 `SERVER_NAME` 后面的子域名.
+
     :param url_scheme: Scheme to use instead of
         :data:`PREFERRED_URL_SCHEME`.
+    参数 url_scheme: 使用的 scheme, 而不是 `PREFERRED_URL_SCHEME`
+
     :param json: If given, this is serialized as JSON and passed as
         ``data``. Also defaults ``content_type`` to
         ``application/json``.
+    参数 json: 如果给了此参数, 序列化为 JSON 作为 `data` 传入. 也同时将
+        `content_type` 默认设为 `application/json`.
+
     :param args: other positional arguments passed to
         :class:`~werkzeug.test.EnvironBuilder`.
+    参数 args: 传入 `werkzeug.test.EnvironBuilder` 的其他位置参数
+
     :param kwargs: other keyword arguments passed to
         :class:`~werkzeug.test.EnvironBuilder`.
+    参数 kwargs: 传入 `werkzeug.test.EnvironBuilder` 的其他关键字参数.
     """
 
     def __init__(
@@ -88,8 +110,12 @@ class EnvironBuilder(werkzeug.test.EnvironBuilder):
     def json_dumps(self, obj, **kwargs):
         """Serialize ``obj`` to a JSON-formatted string.
 
+        将 `obj` 序列化为一个 JSON 格式的字符串.
+
         The serialization will be configured according to the config associated
         with this EnvironBuilder's ``app``.
+
+        序列化将根据 `app` 的配置项进行配置.
         """
         kwargs.setdefault("app", self.app)
         return json_dumps(obj, **kwargs)
@@ -97,10 +123,12 @@ class EnvironBuilder(werkzeug.test.EnvironBuilder):
 
 def make_test_environ_builder(*args, **kwargs):
     """Create a :class:`flask.testing.EnvironBuilder`.
+    创建一个 `flask.testing.EnvironBuilder`.
 
     .. deprecated: 1.1
         Will be removed in 1.2. Construct ``flask.testing.EnvironBuilder``
         directly instead.
+        将在 1.2 版本移除, 改为直接构造.
     """
     warnings.warn(
         DeprecationWarning(
@@ -119,12 +147,18 @@ class FlaskClient(Client):
     information about how to use this class refer to
     :class:`werkzeug.test.Client`.
 
+    和普通 Werkzeug 测试客户端功能类似, 但是清楚 Flask 在使用 `with` 语句时, 将请求
+    上下文栈的清理推迟到 `with` 的末尾. 若要了解如何使用此类, 参见 `werkzeug.test.Client`
+    的文档.
+
     .. versionchanged:: 0.12
        `app.test_client()` includes preset default environment, which can be
        set after instantiation of the `app.test_client()` object in
        `client.environ_base`.
 
     Basic usage is outlined in the :ref:`testing` chapter.
+
+    基本使用方法列在 `testing` 章节的文档中.
     """
 
     preserve_context = False
